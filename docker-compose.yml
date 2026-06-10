@@ -1,0 +1,7 @@
+services:
+  synth-gen:
+    build: .
+    image: isometric-extractor-synth-gen:0.1.0
+    volumes:
+      - ./data:/data
+    command: ["run", "--count", "5", "--output", "/data/v1"]
