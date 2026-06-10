@@ -39,13 +39,28 @@ packages/
 └── api/           # Phase C — FastAPI service
 ```
 
-## Quick Start
+## Quick Start (Phase A1)
 
-_Not yet implemented. Phase A0 scaffold is the first milestone._
+Phase A1 is a **local CLI** — install it, run it on your machine, outputs land in `data/`.
 
 ```bash
-# Future usage
-synth-gen run --count 1000 --output data/v1
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e .
+
+synth-gen run --count 5 --output data/v1
+synth-gen verify --path data/v1
+```
+
+See **[docs/PHASE_A1.md](docs/PHASE_A1.md)** for Docker usage, output layout, and where it runs.
+
+```bash
+# Docker alternative
+docker compose run --rm synth-gen run --count 5 --output /data/v1
+```
+
+Future phases:
+
+```bash
 python -m training.verify.run --checkpoint checkpoints/bom_v1.pt --dataset data/v1/test
 docker compose up api
 ```
