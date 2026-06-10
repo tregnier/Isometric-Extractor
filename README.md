@@ -14,7 +14,7 @@ Designed to integrate with [Weld Dashboard](https://github.com/tregnier/Weld-Das
 
 **Native-software-first (target):** create dummy piping lines in CAD (CADWorx / Plant 3D) or as PCF files, export isometrics through **ISOGEN**, then use `iso-funnel` to package DWG + PDF + PNG + BOM data into training manifests.
 
-> The current `synth-gen` tool is an ezdxf prototype for schema testing only. Real training data must come from ISOGEN output. See **[docs/PLAN_NATIVE_PIPELINE.md](docs/PLAN_NATIVE_PIPELINE.md)**.
+> The current `synth-gen` tool is an ezdxf prototype for schema testing only. Real training data must come from isometric software output. **No license?** See **[docs/FREE_STACK.md](docs/FREE_STACK.md)** (IsoAlgo + PCF, free).
 
 ## Documentation
 

@@ -257,6 +257,7 @@ The implementation path depends on your stack:
 | **Plant 3D + ISOGEN** | Same with Plant production iso |
 | **ISOGEN only (no CAD)** | Build `pcf-gen` → ISOGEN-S folder watch |
 | **CADWorx + ISOWorx** | Above + automatic BOM/WELD xls |
+| **No license (free only)** | See **[FREE_STACK.md](FREE_STACK.md)** — IsoAlgo + `pcf-gen` |
 | **Other (BricsCAD, etc.)** | Tell us — adjust export steps |
 
 **Please confirm your stack** so we can implement `iso-funnel` against the right batch commands and report formats.
