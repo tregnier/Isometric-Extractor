@@ -12,7 +12,9 @@ Designed to integrate with [Weld Dashboard](https://github.com/tregnier/Weld-Das
 
 ## Approach
 
-**Synthetic-data-first:** generate isometric drawings with known ground truth, export through DWG → PDF → image, and train vision models on the linked dataset.
+**Native-software-first (target):** create dummy piping lines in CAD (CADWorx / Plant 3D) or as PCF files, export isometrics through **ISOGEN**, then use `iso-funnel` to package DWG + PDF + PNG + BOM data into training manifests.
+
+> The current `synth-gen` tool is an ezdxf prototype for schema testing only. Real training data must come from ISOGEN output. See **[docs/PLAN_NATIVE_PIPELINE.md](docs/PLAN_NATIVE_PIPELINE.md)**.
 
 ## Documentation
 
