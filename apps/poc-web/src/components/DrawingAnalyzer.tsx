@@ -56,9 +56,9 @@ export function DrawingAnalyzer() {
           BOM extraction and callout placement from isometric drawings
         </h1>
         <p className="max-w-3xl text-base leading-7 text-slate-600">
-          Upload a DWG-exported PDF or PNG. The app parses the bill of materials, finds item
-          balloons on the drawing, traces leader lines to part locations, and overlays numbered
-          markers for review or PDF export.
+          Upload a DWG-exported PDF or PNG. The drawing is rasterized and processed with OCR,
+          then the bill of materials is parsed, callout balloons are matched, leader lines are
+          traced to part locations, and numbered markers are overlaid for review or PDF export.
         </p>
       </header>
 
@@ -118,7 +118,7 @@ export function DrawingAnalyzer() {
             <div className="rounded-xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-600">
               <p>
                 <span className="font-medium text-slate-900">Method:</span>{" "}
-                {result.method === "pdf_text" ? "Searchable PDF text" : "OCR (Tesseract.js)"}
+                OCR (Tesseract.js) with BOM region refinement
               </p>
               <p className="mt-1">
                 <span className="font-medium text-slate-900">Items:</span> {result.bom.length} BOM

@@ -25,7 +25,10 @@ export function detectPlacements(
     if (!isBalloonLabel(item.text)) return false;
     const itemNo = Number.parseInt(item.text, 10);
     if (!bomItemNumbers.has(itemNo)) return false;
-    if (bomTableRegion && bboxContains(bomTableRegion, item.bbox, 8)) return false;
+    const tablePadding = bomTableRegion
+      ? Math.max(20, Math.round(bomTableRegion.width * 0.04))
+      : 12;
+    if (bomTableRegion && bboxContains(bomTableRegion, item.bbox, tablePadding)) return false;
     return true;
   });
 

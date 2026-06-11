@@ -10,7 +10,7 @@ Next.js proof of concept for the BOM + callout placement workflow described in t
 4. Overlay numbered markers on the drawing
 5. **Export an annotated PDF**
 
-Processing runs **in the browser** (pdf.js + Tesseract.js). This keeps the POC deployable on Vercel without GPU workers or native OCR binaries.
+Processing runs **entirely via OCR in the browser** (pdf.js rasterization + Tesseract.js). PDF text layers are ignored because CAD exports often outline text as vectors. A second OCR pass crops the BOM region (or bottom-right fallback) for sharper table parsing.
 
 ## Quick start
 
@@ -42,7 +42,7 @@ Set the Vercel project root to `apps/poc-web`.
 
 ## OCR and vision API options
 
-The POC uses **Tesseract.js** when a PDF has no searchable text layer (common for matplotlib/AutoCAD plot-to-PDF paths that outline text as vectors).
+The POC always uses **Tesseract.js** — first on the full page, then on a cropped BOM region for better table accuracy.
 
 For production, consider:
 

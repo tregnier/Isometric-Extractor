@@ -1,16 +1,17 @@
 "use client";
 
 import type { AnalysisResult, AnalyzeOptions } from "@/lib/types";
-import { extractBom } from "@/lib/analyzer/bom-parser";
+import { estimateBomRegion, extractBom } from "@/lib/analyzer/bom-parser";
 import { detectPlacements } from "@/lib/analyzer/callout-detector";
-import { runOcr } from "@/lib/analyzer/ocr";
+import { runOcr, runOcrOnRegion } from "@/lib/analyzer/ocr";
 import { renderImageFile, renderPdfPage } from "@/lib/analyzer/render-pdf";
+import { expandBbox, normalizeToken } from "@/lib/analyzer/text-lines";
+import type { TextItem } from "@/lib/types";
 
 function normalizeResult(
   pageWidth: number,
   pageHeight: number,
   previewDataUrl: string,
-  method: AnalysisResult["method"],
   bomResult: ReturnType<typeof extractBom>,
   placements: AnalysisResult["placements"],
   warnings: string[],
@@ -26,7 +27,7 @@ function normalizeResult(
     pageWidth,
     pageHeight,
     previewDataUrl,
-    method,
+    method: "ocr",
     bom: bomResult.bom,
     bomTableRegion: bomResult.bomTableRegion
       ? normalizeBbox(bomResult.bomTableRegion)
@@ -39,8 +40,18 @@ function normalizeResult(
         y: placement.tipPoint.y / pageHeight,
       },
     })),
-    warnings: [...bomResult.warnings, ...warnings],
+    warnings,
   };
+}
+
+function mergeOcrResults(full: TextItem[], regional: TextItem[]) {
+  const seen = new Set<string>();
+  return [...regional, ...full].filter((item) => {
+    const key = `${Math.round(item.bbox.x)}:${Math.round(item.bbox.y)}:${normalizeToken(item.text)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export async function analyzeDrawingFile(
@@ -53,23 +64,50 @@ export async function analyzeDrawingFile(
   onProgress?.("Rendering drawing…", 5);
   const rendered = isImage
     ? await renderImageFile(file, 1)
-    : await renderPdfPage(file, 2);
+    : await renderPdfPage(file, 3);
 
-  let textItems = rendered.textItems;
-  let method: AnalysisResult["method"] = "pdf_text";
+  onProgress?.("Running OCR on full drawing…", 12);
+  const fullPageText = await runOcr(rendered.canvas, onProgress);
 
-  if (textItems.length < 8) {
-    onProgress?.("No searchable PDF text — running OCR…", 15);
-    method = "ocr";
-    textItems = await runOcr(rendered.canvas, onProgress);
-  } else {
-    onProgress?.("Extracted searchable PDF text…", 40);
+  onProgress?.("Locating BOM table region…", 58);
+  const roughRegion = estimateBomRegion(fullPageText, rendered.width, rendered.height);
+
+  let textItems = fullPageText;
+  const warnings: string[] = [];
+
+  const scanRegion =
+    roughRegion ??
+    ({
+      x: rendered.width * 0.52,
+      y: rendered.height * 0.48,
+      width: rendered.width * 0.45,
+      height: rendered.height * 0.42,
+    } as const);
+
+  if (!roughRegion) {
+    warnings.push(
+      "BOM title not found on first OCR pass. Scanning the bottom-right quadrant where BOM tables usually appear.",
+    );
   }
 
-  onProgress?.("Parsing BOM table…", 70);
-  const bomResult = extractBom(textItems);
+  const paddedRegion = expandBbox(
+    scanRegion,
+    Math.max(12, rendered.width * 0.01),
+    rendered.width,
+    rendered.height,
+  );
 
-  onProgress?.("Locating callout markers…", 85);
+  try {
+    const regionalText = await runOcrOnRegion(rendered.canvas, paddedRegion, onProgress);
+    textItems = mergeOcrResults(fullPageText, regionalText);
+  } catch {
+    warnings.push("BOM region OCR refinement failed; using full-page OCR only.");
+  }
+
+  onProgress?.("Parsing BOM table…", 78);
+  const bomResult = extractBom(textItems, rendered.width, rendered.height);
+
+  onProgress?.("Locating callout markers…", 88);
   const context = rendered.canvas.getContext("2d");
   if (!context) throw new Error("Canvas 2D context is unavailable.");
   const imageData = context.getImageData(0, 0, rendered.width, rendered.height);
@@ -89,9 +127,8 @@ export async function analyzeDrawingFile(
     rendered.width,
     rendered.height,
     rendered.dataUrl,
-    method,
     bomResult,
     placementResult.placements,
-    placementResult.warnings,
+    [...warnings, ...bomResult.warnings, ...placementResult.warnings],
   );
 }

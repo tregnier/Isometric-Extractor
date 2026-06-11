@@ -32,7 +32,7 @@ export type AnalysisResult = {
   bom: BomItem[];
   placements: Placement[];
   bomTableRegion?: Bbox;
-  method: "pdf_text" | "ocr";
+  method: "ocr";
   warnings: string[];
   previewDataUrl: string;
 };

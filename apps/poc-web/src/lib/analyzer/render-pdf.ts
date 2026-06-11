@@ -1,44 +1,16 @@
 "use client";
 
-import type { TextItem } from "@/lib/types";
-
 export type RenderedPage = {
   width: number;
   height: number;
   scale: number;
   canvas: HTMLCanvasElement;
   dataUrl: string;
-  textItems: TextItem[];
 };
-
-function textItemFromPdfJs(item: {
-  str: string;
-  transform: number[];
-  width: number;
-  height: number;
-}): TextItem | null {
-  const text = item.str.trim();
-  if (!text) return null;
-
-  const x = item.transform[4];
-  const y = item.transform[5];
-  const height = Math.abs(item.height) || Math.abs(item.transform[3]) || 10;
-  const width = item.width || text.length * height * 0.55;
-
-  return {
-    text,
-    bbox: {
-      x,
-      y: y - height,
-      width,
-      height,
-    },
-  };
-}
 
 export async function renderPdfPage(
   file: File,
-  scale = 2,
+  scale = 3,
 ): Promise<RenderedPage> {
   const pdfjs = await import("pdfjs-dist");
   pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -60,26 +32,12 @@ export async function renderPdfPage(
 
   await page.render({ canvasContext: context, viewport, canvas }).promise;
 
-  const textContent = await page.getTextContent();
-  const textItems = textContent.items
-    .map((item) => {
-      if (!("str" in item)) return null;
-      return textItemFromPdfJs({
-        str: item.str,
-        transform: item.transform,
-        width: item.width,
-        height: item.height,
-      });
-    })
-    .filter((item): item is TextItem => item !== null);
-
   return {
     width: viewport.width,
     height: viewport.height,
     scale,
     canvas,
     dataUrl: canvas.toDataURL("image/png"),
-    textItems,
   };
 }
 
@@ -114,6 +72,5 @@ export async function renderImageFile(file: File, scale = 1): Promise<RenderedPa
     scale,
     canvas,
     dataUrl: canvas.toDataURL("image/png"),
-    textItems: [],
   };
 }

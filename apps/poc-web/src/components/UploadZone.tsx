@@ -43,7 +43,7 @@ export function UploadZone({ onFileSelect, isProcessing }: UploadZoneProps) {
         Drop isometric PDF or PNG
       </p>
       <p className="mt-1 text-sm text-slate-500">
-        DWG exports saved as PDF work best when text is searchable; scanned sheets use OCR.
+        All drawings are processed with OCR — PDF, PNG, or JPG.
       </p>
     </label>
   );
