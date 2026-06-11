@@ -39,6 +39,14 @@ packages/
 └── api/           # Phase C — FastAPI service
 ```
 
+## Web POC (BOM + markers)
+
+A Next.js proof of concept lives in [`apps/poc-web`](apps/poc-web/README.md). It uploads a DWG-exported PDF, extracts the BOM, traces callout balloons to part locations, overlays markers, and exports an annotated PDF. Processing runs in the browser so it deploys cleanly to Vercel.
+
+```bash
+cd apps/poc-web && npm install && npm run dev
+```
+
 ## Quick Start (Phase A1)
 
 Phase A1 is a **local CLI** — install it, run it on your machine, outputs land in `data/`.

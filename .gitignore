@@ -8,3 +8,7 @@ data/v1/
 data/v2/
 *.png
 !docs/**/*.png
+!apps/poc-web/public/samples/*.png
+data/poc-sample/
+apps/poc-web/node_modules/
+apps/poc-web/.next/
